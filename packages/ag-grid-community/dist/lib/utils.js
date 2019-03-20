@@ -5,17 +5,19 @@
  * @license MIT
  */
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
 var constants_1 = require("./constants");
 var FUNCTION_STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
 var FUNCTION_ARGUMENT_NAMES = /([^\s,]+)/g;
 var AG_GRID_STOP_PROPAGATION = '__ag_Grid_Stop_Propagation';
 // util class, only used when debugging, for printing time to console
-var Timer = /** @class */ (function () {
+var Timer = /** @class */ (function() {
     function Timer() {
         this.timestamp = new Date().getTime();
     }
-    Timer.prototype.print = function (msg) {
+    Timer.prototype.print = function(msg) {
         var duration = (new Date().getTime()) - this.timestamp;
         console.info(msg + " = " + duration);
         this.timestamp = new Date().getTime();
@@ -32,14 +34,13 @@ var HTML_ESCAPES = {
     "'": '&#39;'
 };
 var reUnescapedHtml = /[&<>"']/g;
-var Utils = /** @class */ (function () {
-    function Utils() {
-    }
+var Utils = /** @class */ (function() {
+    function Utils() {}
     // https://ag-grid.com/forum/showthread.php?tid=4362
     // when in IE or Edge, when you are editing a cell, then click on another cell,
     // the other cell doesn't keep focus, so navigation keys, type to start edit etc
     // don't work. appears that when you update the dom in IE it looses focus
-    Utils.doIeFocusHack = function (el) {
+    Utils.doIeFocusHack = function(el) {
         if (exports._.isBrowserIE() || exports._.isBrowserEdge()) {
             if (exports._.missing(document.activeElement) || document.activeElement === document.body) {
                 // console.log('missing focus');
@@ -48,7 +49,7 @@ var Utils = /** @class */ (function () {
         }
     };
     // if the key was passed before, then doesn't execute the func
-    Utils.doOnce = function (func, key) {
+    Utils.doOnce = function(func, key) {
         if (this.doOnceFlags[key]) {
             return;
         }
@@ -56,7 +57,7 @@ var Utils = /** @class */ (function () {
         this.doOnceFlags[key] = true;
     };
     // got from https://stackoverflow.com/questions/3944122/detect-left-mouse-button-press
-    Utils.isLeftClick = function (mouseEvent) {
+    Utils.isLeftClick = function(mouseEvent) {
         if ("buttons" in mouseEvent) {
             return mouseEvent.buttons == 1;
         }
@@ -65,7 +66,7 @@ var Utils = /** @class */ (function () {
     };
     // returns true if the event is close to the original event by X pixels either vertically or horizontally.
     // we only start dragging after X pixels so this allows us to know if we should start dragging yet.
-    Utils.areEventsNear = function (e1, e2, pixelCount) {
+    Utils.areEventsNear = function(e1, e2, pixelCount) {
         // by default, we wait 4 pixels before starting the drag
         if (pixelCount === 0) {
             return false;
@@ -74,13 +75,13 @@ var Utils = /** @class */ (function () {
         var diffY = Math.abs(e1.clientY - e2.clientY);
         return Math.max(diffX, diffY) <= pixelCount;
     };
-    Utils.jsonEquals = function (val1, val2) {
+    Utils.jsonEquals = function(val1, val2) {
         var val1Json = val1 ? JSON.stringify(val1) : null;
         var val2Json = val2 ? JSON.stringify(val2) : null;
         var res = val1Json === val2Json;
         return res;
     };
-    Utils.shallowCompare = function (arr1, arr2) {
+    Utils.shallowCompare = function(arr1, arr2) {
         // if both are missing, then they are the same
         if (this.missing(arr1) && this.missing(arr2)) {
             return true;
@@ -99,28 +100,27 @@ var Utils = /** @class */ (function () {
         }
         return true;
     };
-    Utils.getNameOfClass = function (TheClass) {
+    Utils.getNameOfClass = function(TheClass) {
         var funcNameRegex = /function (.{1,})\(/;
         var funcAsString = TheClass.toString();
         var results = (funcNameRegex).exec(funcAsString);
         return (results && results.length > 1) ? results[1] : "";
     };
-    Utils.values = function (object) {
+    Utils.values = function(object) {
         var result = [];
-        this.iterateObject(object, function (key, value) {
+        this.iterateObject(object, function(key, value) {
             result.push(value);
         });
         return result;
     };
-    Utils.getValueUsingField = function (data, field, fieldContainsDots) {
+    Utils.getValueUsingField = function(data, field, fieldContainsDots) {
         if (!field || !data) {
             return;
         }
         // if no '.', then it's not a deep value
         if (!fieldContainsDots) {
             return data[field];
-        }
-        else {
+        } else {
             // otherwise it is a deep value, so need to dig for it
             var fields = field.split('.');
             var currentObject = data;
@@ -133,17 +133,17 @@ var Utils = /** @class */ (function () {
             return currentObject;
         }
     };
-    Utils.getAbsoluteHeight = function (el) {
+    Utils.getAbsoluteHeight = function(el) {
         var styles = window.getComputedStyle(el);
         var margin = parseFloat(styles.marginTop) + parseFloat(styles.marginBottom);
         return Math.ceil(el.offsetHeight + margin);
     };
-    Utils.getAbsoluteWidth = function (el) {
+    Utils.getAbsoluteWidth = function(el) {
         var styles = window.getComputedStyle(el);
         var margin = parseFloat(styles.marginLeft) + parseFloat(styles.marginRight);
         return Math.ceil(el.offsetWidth + margin);
     };
-    Utils.getScrollLeft = function (element, rtl) {
+    Utils.getScrollLeft = function(element, rtl) {
         var scrollLeft = element.scrollLeft;
         if (rtl) {
             // Absolute value - for FF that reports RTL scrolls in negative numbers
@@ -155,19 +155,18 @@ var Utils = /** @class */ (function () {
         }
         return scrollLeft;
     };
-    Utils.cleanNumber = function (value) {
+    Utils.cleanNumber = function(value) {
         if (typeof value === 'string') {
             value = parseInt(value, 10);
         }
         if (typeof value === 'number') {
             value = Math.floor(value);
-        }
-        else {
+        } else {
             value = null;
         }
         return value;
     };
-    Utils.setScrollLeft = function (element, value, rtl) {
+    Utils.setScrollLeft = function(element, value, rtl) {
         if (rtl) {
             // Chrome and Safari when doing RTL have the END position of the scroll as zero, not the start
             if (this.isBrowserSafari() || this.isBrowserChrome()) {
@@ -180,7 +179,7 @@ var Utils = /** @class */ (function () {
         }
         element.scrollLeft = value;
     };
-    Utils.iterateNamedNodeMap = function (map, callback) {
+    Utils.iterateNamedNodeMap = function(map, callback) {
         if (!map) {
             return;
         }
@@ -189,16 +188,15 @@ var Utils = /** @class */ (function () {
             callback(attr.name, attr.value);
         }
     };
-    Utils.iterateObject = function (object, callback) {
+    Utils.iterateObject = function(object, callback) {
         if (!object || this.missing(object)) {
             return;
         }
         if (Array.isArray(object)) {
-            object.forEach(function (value, index) {
+            object.forEach(function(value, index) {
                 callback(index + '', value);
             });
-        }
-        else {
+        } else {
             var keys = Object.keys(object);
             for (var i = 0; i < keys.length; i++) {
                 var key = keys[i];
@@ -207,7 +205,7 @@ var Utils = /** @class */ (function () {
             }
         }
     };
-    Utils.cloneObject = function (object) {
+    Utils.cloneObject = function(object) {
         var copy = {};
         var keys = Object.keys(object);
         for (var i = 0; i < keys.length; i++) {
@@ -217,10 +215,10 @@ var Utils = /** @class */ (function () {
         }
         return copy;
     };
-    Utils.deepCloneObject = function (object) {
+    Utils.deepCloneObject = function(object) {
         return JSON.parse(JSON.stringify(object));
     };
-    Utils.map = function (array, callback) {
+    Utils.map = function(array, callback) {
         var result = [];
         for (var i = 0; i < array.length; i++) {
             var item = array[i];
@@ -229,14 +227,14 @@ var Utils = /** @class */ (function () {
         }
         return result;
     };
-    Utils.mapObject = function (object, callback) {
+    Utils.mapObject = function(object, callback) {
         var result = [];
-        Utils.iterateObject(object, function (key, value) {
+        Utils.iterateObject(object, function(key, value) {
             result.push(callback(value));
         });
         return result;
     };
-    Utils.forEach = function (array, callback) {
+    Utils.forEach = function(array, callback) {
         if (!array) {
             return;
         }
@@ -245,57 +243,58 @@ var Utils = /** @class */ (function () {
             callback(value, i);
         }
     };
-    Utils.filter = function (array, callback) {
+    Utils.filter = function(array, callback) {
         var result = [];
-        array.forEach(function (item) {
+        array.forEach(function(item) {
             if (callback(item)) {
                 result.push(item);
             }
         });
         return result;
     };
-    Utils.getAllKeysInObjects = function (objects) {
+    Utils.getAllKeysInObjects = function(objects) {
         var allValues = {};
-        objects.forEach(function (obj) {
+        objects.forEach(function(obj) {
             if (obj) {
-                Object.keys(obj).forEach(function (key) { return allValues[key] = null; });
+                Object.keys(obj).forEach(function(key) {
+                    return allValues[key] = null;
+                });
             }
         });
         return Object.keys(allValues);
     };
-    Utils.mergeDeep = function (dest, source) {
+    Utils.mergeDeep = function(dest, source) {
         if (!this.exists(source)) {
             return;
         }
-        this.iterateObject(source, function (key, newValue) {
+        this.iterateObject(source, function(key, newValue) {
             var oldValue = dest[key];
             if (oldValue === newValue) {
                 return;
             }
             if (typeof oldValue === 'object' && typeof newValue === 'object') {
                 Utils.mergeDeep(oldValue, newValue);
-            }
-            else {
+            } else {
                 dest[key] = newValue;
             }
         });
     };
-    Utils.assign = function (object) {
+    Utils.assign = function(object) {
         var _this = this;
         var sources = [];
         for (var _i = 1; _i < arguments.length; _i++) {
             sources[_i - 1] = arguments[_i];
         }
-        sources.forEach(function (source) {
+        sources.forEach(function(source) {
             if (_this.exists(source)) {
-                _this.iterateObject(source, function (key, value) {
+                _this.iterateObject(source, function(key, value) {
                     object[key] = value;
                 });
             }
         });
         return object;
     };
-    Utils.parseYyyyMmDdToDate = function (yyyyMmDd, separator) {
+    Utils.parseYyyyMmDdToDate = function(yyyyMmDd, separator) {
         try {
             if (!yyyyMmDd) {
                 return null;
@@ -308,48 +307,48 @@ var Utils = /** @class */ (function () {
                 return null;
             }
             return new Date(Number(fields[0]), Number(fields[1]) - 1, Number(fields[2]));
-        }
-        catch (e) {
+        } catch (e) {
             return null;
         }
     };
-    Utils.serializeDateToYyyyMmDd = function (date, separator) {
+    Utils.serializeDateToYyyyMmDd = function(date, separator) {
         if (!date) {
             return null;
         }
         return date.getFullYear() + separator + Utils.pad(date.getMonth() + 1, 2) + separator + Utils.pad(date.getDate(), 2);
     };
-    Utils.pad = function (num, totalStringSize) {
+    Utils.pad = function(num, totalStringSize) {
         var asString = num + "";
         while (asString.length < totalStringSize) {
             asString = "0" + asString;
         }
         return asString;
     };
-    Utils.pushAll = function (target, source) {
+    Utils.pushAll = function(target, source) {
         if (this.missing(source) || this.missing(target)) {
             return;
         }
-        source.forEach(function (func) { return target.push(func); });
+        source.forEach(function(func) {
+            return target.push(func);
+        });
     };
-    Utils.createArrayOfNumbers = function (first, last) {
+    Utils.createArrayOfNumbers = function(first, last) {
         var result = [];
         for (var i = first; i <= last; i++) {
             result.push(i);
         }
         return result;
     };
-    Utils.getFunctionParameters = function (func) {
+    Utils.getFunctionParameters = function(func) {
         var fnStr = func.toString().replace(FUNCTION_STRIP_COMMENTS, '');
         var result = fnStr.slice(fnStr.indexOf('(') + 1, fnStr.indexOf(')')).match(FUNCTION_ARGUMENT_NAMES);
         if (result === null) {
             return [];
-        }
-        else {
+        } else {
             return result;
         }
     };
-    Utils.find = function (collection, predicate, value) {
+    Utils.find = function(collection, predicate, value) {
         if (collection === null || collection === undefined) {
             return null;
         }
@@ -366,8 +365,7 @@ var Utils = /** @class */ (function () {
                     firstMatchingItem = item;
                     break;
                 }
-            }
-            else {
+            } else {
                 var callback = predicate;
                 if (callback(item)) {
                     firstMatchingItem = item;
@@ -377,17 +375,16 @@ var Utils = /** @class */ (function () {
         }
         return firstMatchingItem;
     };
-    Utils.toStrings = function (array) {
-        return this.map(array, function (item) {
+    Utils.toStrings = function(array) {
+        return this.map(array, function(item) {
             if (item === undefined || item === null || !item.toString) {
                 return null;
-            }
-            else {
+            } else {
                 return item.toString();
             }
         });
     };
-    Utils.iterateArray = function (array, callback) {
+    Utils.iterateArray = function(array, callback) {
         for (var index = 0; index < array.length; index++) {
             var value = array[index];
             callback(value, index);
@@ -395,21 +392,21 @@ var Utils = /** @class */ (function () {
     };
     //Returns true if it is a DOM node
     //taken from: http://stackoverflow.com/questions/384286/javascript-isdom-how-do-you-check-if-a-javascript-object-is-a-dom-object
-    Utils.isNode = function (o) {
+    Utils.isNode = function(o) {
         return (typeof Node === "function" ? o instanceof Node :
             o && typeof o === "object" && typeof o.nodeType === "number" && typeof o.nodeName === "string");
     };
     //Returns true if it is a DOM element
     //taken from: http://stackoverflow.com/questions/384286/javascript-isdom-how-do-you-check-if-a-javascript-object-is-a-dom-object
-    Utils.isElement = function (o) {
+    Utils.isElement = function(o) {
         return (typeof HTMLElement === "function" ? o instanceof HTMLElement : //DOM2
             o && typeof o === "object" && o !== null && o.nodeType === 1 && typeof o.nodeName === "string");
     };
-    Utils.isNodeOrElement = function (o) {
+    Utils.isNodeOrElement = function(o) {
         return this.isNode(o) || this.isElement(o);
     };
     // makes a copy of a node list into a list
-    Utils.copyNodeList = function (nodeList) {
+    Utils.copyNodeList = function(nodeList) {
         var childCount = nodeList ? nodeList.length : 0;
         var res = [];
         for (var i = 0; i < childCount; i++) {
@@ -417,7 +414,7 @@ var Utils = /** @class */ (function () {
         }
         return res;
     };
-    Utils.isEventFromPrintableCharacter = function (event) {
+    Utils.isEventFromPrintableCharacter = function(event) {
         var pressedChar = String.fromCharCode(event.charCode);
         // newline is an exception, as it counts as a printable character, but we don't
         // want to start editing when it is pressed. without this check, if user is in chrome
@@ -440,15 +437,14 @@ var Utils = /** @class */ (function () {
             // so this addition checks if its IE11/Edge and handles that specific case the same was as all other browsers
             var numpadDelWithNumlockOnForEdgeOrIe = Utils.isNumpadDelWithNumlockOnForEdgeOrIe(event);
             return printableCharacter || numpadDelWithNumlockOnForEdgeOrIe;
-        }
-        else {
+        } else {
             // otherwise, for older browsers, we test against a list of characters, which doesn't include
             // accents for non-English, but don't care much, as most users are on modern browsers
             return Utils.PRINTABLE_CHARACTERS.indexOf(pressedChar) >= 0;
         }
     };
     //adds all type of change listeners to an element, intended to be a text field
-    Utils.addChangeListener = function (element, listener) {
+    Utils.addChangeListener = function(element, listener) {
         element.addEventListener("changed", listener);
         element.addEventListener("paste", listener);
         element.addEventListener("input", listener);
@@ -458,29 +454,30 @@ var Utils = /** @class */ (function () {
         element.addEventListener("keyup", listener);
     };
     //if value is undefined, null or blank, returns null, otherwise returns the value
-    Utils.makeNull = function (value) {
+    Utils.makeNull = function(value) {
         var valueNoType = value;
         if (value === null || value === undefined || valueNoType === "") {
             return null;
-        }
-        else {
+        } else {
             return value;
         }
     };
-    Utils.missing = function (value) {
+    Utils.missing = function(value) {
         return !this.exists(value);
     };
-    Utils.missingOrEmpty = function (value) {
+    Utils.missingOrEmpty = function(value) {
         return !value || this.missing(value) || value.length === 0;
     };
-    Utils.missingOrEmptyObject = function (value) {
+    Utils.missingOrEmptyObject = function(value) {
         return this.missing(value) || Object.keys(value).length === 0;
     };
-    Utils.exists = function (value, allowEmptyString) {
-        if (allowEmptyString === void 0) { allowEmptyString = false; }
+    Utils.exists = function(value, allowEmptyString) {
+        if (allowEmptyString === void 0) {
+            allowEmptyString = false;
+        }
         return value != null && (value !== '' || allowEmptyString);
     };
-    Utils.firstExistingValue = function () {
+    Utils.firstExistingValue = function() {
         var values = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             values[_i] = arguments[_i];
@@ -493,7 +490,7 @@ var Utils = /** @class */ (function () {
         }
         return null;
     };
-    Utils.anyExists = function (values) {
+    Utils.anyExists = function(values) {
         if (values) {
             for (var i = 0; i < values.length; i++) {
                 if (this.exists(values[i])) {
@@ -503,94 +500,91 @@ var Utils = /** @class */ (function () {
         }
         return false;
     };
-    Utils.existsAndNotEmpty = function (value) {
+    Utils.existsAndNotEmpty = function(value) {
         return value != null && this.exists(value) && value.length > 0;
     };
-    Utils.clearElement = function (el) {
+    Utils.clearElement = function(el) {
         while (el && el.firstChild) {
             el.removeChild(el.firstChild);
         }
     };
-    Utils.removeElement = function (parent, cssSelector) {
+    Utils.removeElement = function(parent, cssSelector) {
         this.removeFromParent(parent.querySelector(cssSelector));
     };
-    Utils.removeFromParent = function (node) {
+    Utils.removeFromParent = function(node) {
         if (node && node.parentNode) {
             node.parentNode.removeChild(node);
         }
     };
-    Utils.isVisible = function (element) {
+    Utils.isVisible = function(element) {
         return (element.offsetParent !== null);
     };
     /**
      * loads the template and returns it as an element. makes up for no simple way in
      * the dom api to load html directly, eg we cannot do this: document.createElement(template)
      */
-    Utils.loadTemplate = function (template) {
+    Utils.loadTemplate = function(template) {
         var tempDiv = document.createElement("div");
         tempDiv.innerHTML = template;
         return tempDiv.firstChild;
     };
-    Utils.appendHtml = function (eContainer, htmlTemplate) {
+    Utils.appendHtml = function(eContainer, htmlTemplate) {
         if (eContainer.lastChild) {
             // https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentHTML
             // we put the items at the start, so new items appear underneath old items,
             // so when expanding/collapsing groups, the new rows don't go on top of the
             // rows below that are moving our of the way
             eContainer.insertAdjacentHTML('afterbegin', htmlTemplate);
-        }
-        else {
+        } else {
             eContainer.innerHTML = htmlTemplate;
         }
     };
-    Utils.addOrRemoveCssClass = function (element, className, addOrRemove) {
+    Utils.addOrRemoveCssClass = function(element, className, addOrRemove) {
         if (addOrRemove) {
             this.addCssClass(element, className);
-        }
-        else {
+        } else {
             this.removeCssClass(element, className);
         }
     };
-    Utils.callIfPresent = function (func) {
+    Utils.callIfPresent = function(func) {
         if (func) {
             func();
         }
     };
-    Utils.addCssClass = function (element, className) {
+    Utils.addCssClass = function(element, className) {
         var _this = this;
         if (!className || className.length === 0) {
             return;
         }
         if (className.indexOf(' ') >= 0) {
-            className.split(' ').forEach(function (value) { return _this.addCssClass(element, value); });
+            className.split(' ').forEach(function(value) {
+                return _this.addCssClass(element, value);
+            });
             return;
         }
         if (element.classList) {
             if (!element.classList.contains(className)) {
                 element.classList.add(className);
             }
-        }
-        else {
+        } else {
             if (element.className && element.className.length > 0) {
                 var cssClasses = element.className.split(' ');
                 if (cssClasses.indexOf(className) < 0) {
                     cssClasses.push(className);
                     element.setAttribute('class', cssClasses.join(' '));
                 }
-            }
-            else {
+            } else {
                 // do not use element.classList = className here, it will cause
                 // a read-only assignment error on some browsers (IE/Edge).
                 element.setAttribute('class', className);
             }
         }
     };
-    Utils.containsClass = function (element, className) {
+    Utils.containsClass = function(element, className) {
         if (element.classList) {
             // for modern browsers
             return element.classList.contains(className);
-        }
-        else if (element.className) {
+        } else if (element.className) {
             // for older browsers, check against the string of class names
             // if only one class, can check for exact match
             var onlyClass = element.className === className;
@@ -601,42 +595,40 @@ var Utils = /** @class */ (function () {
             var startsWithClass = element.className.indexOf(className + ' ') === 0;
             var endsWithClass = element.className.lastIndexOf(' ' + className) === (element.className.length - className.length - 1);
             return onlyClass || contains || startsWithClass || endsWithClass;
-        }
-        else {
+        } else {
             // if item is not a node
             return false;
         }
     };
-    Utils.getElementAttribute = function (element, attributeName) {
+    Utils.getElementAttribute = function(element, attributeName) {
         if (element.attributes) {
             if (element.attributes[attributeName]) {
                 var attribute = element.attributes[attributeName];
                 return attribute.value;
-            }
-            else {
+            } else {
                 return null;
             }
-        }
-        else {
+        } else {
             return null;
         }
     };
-    Utils.offsetHeight = function (element) {
+    Utils.offsetHeight = function(element) {
         return element && element.clientHeight ? element.clientHeight : 0;
     };
-    Utils.offsetWidth = function (element) {
+    Utils.offsetWidth = function(element) {
         return element && element.clientWidth ? element.clientWidth : 0;
     };
-    Utils.sortNumberArray = function (numberArray) {
-        numberArray.sort(function (a, b) { return a - b; });
+    Utils.sortNumberArray = function(numberArray) {
+        numberArray.sort(function(a, b) {
+            return a - b;
+        });
     };
-    Utils.removeCssClass = function (element, className) {
+    Utils.removeCssClass = function(element, className) {
         if (element.classList) {
             if (element.classList.contains(className)) {
                 element.classList.remove(className);
             }
-        }
-        else {
+        } else {
             if (element.className && element.className.length > 0) {
                 var cssClasses = element.className.split(' ');
                 if (cssClasses.indexOf(className) >= 0) {
@@ -649,7 +641,7 @@ var Utils = /** @class */ (function () {
             }
         }
     };
-    Utils.removeRepeatsFromArray = function (array, object) {
+    Utils.removeRepeatsFromArray = function(array, object) {
         if (!array) {
             return;
         }
@@ -661,22 +653,22 @@ var Utils = /** @class */ (function () {
             }
         }
     };
-    Utils.removeFromArray = function (array, object) {
+    Utils.removeFromArray = function(array, object) {
         if (array.indexOf(object) >= 0) {
             array.splice(array.indexOf(object), 1);
         }
     };
-    Utils.removeAllFromArray = function (array, toRemove) {
-        toRemove.forEach(function (item) {
+    Utils.removeAllFromArray = function(array, toRemove) {
+        toRemove.forEach(function(item) {
             if (array.indexOf(item) >= 0) {
                 array.splice(array.indexOf(item), 1);
             }
         });
     };
-    Utils.insertIntoArray = function (array, object, toIndex) {
+    Utils.insertIntoArray = function(array, object, toIndex) {
         array.splice(toIndex, 0, object);
     };
-    Utils.insertArrayIntoArray = function (dest, src, toIndex) {
+    Utils.insertArrayIntoArray = function(dest, src, toIndex) {
         if (this.missing(dest) || this.missing(src)) {
             return;
         }
@@ -686,20 +678,22 @@ var Utils = /** @class */ (function () {
             this.insertIntoArray(dest, item, toIndex);
         }
     };
-    Utils.moveInArray = function (array, objectsToMove, toIndex) {
+    Utils.moveInArray = function(array, objectsToMove, toIndex) {
         var _this = this;
         // first take out it items from the array
-        objectsToMove.forEach(function (obj) {
+        objectsToMove.forEach(function(obj) {
             _this.removeFromArray(array, obj);
         });
         // now add the objects, in same order as provided to us, that means we start at the end
         // as the objects will be pushed to the right as they are inserted
-        objectsToMove.slice().reverse().forEach(function (obj) {
+        objectsToMove.slice().reverse().forEach(function(obj) {
             _this.insertIntoArray(array, obj, toIndex);
         });
     };
-    Utils.defaultComparator = function (valueA, valueB, accentedCompare) {
-        if (accentedCompare === void 0) { accentedCompare = false; }
+    Utils.defaultComparator = function(valueA, valueB, accentedCompare) {
+        if (accentedCompare === void 0) {
+            accentedCompare = false;
+        }
         var valueAMissing = valueA === null || valueA === undefined;
         var valueBMissing = valueB === null || valueB === undefined;
         // this is for aggregations sum and avg, where the result can be a number that is wrapped.
@@ -723,13 +717,11 @@ var Utils = /** @class */ (function () {
         if (typeof valueA === "string") {
             if (!accentedCompare) {
                 return doQuickCompare(valueA, valueB);
-            }
-            else {
+            } else {
                 try {
                     // using local compare also allows chinese comparisons
                     return valueA.localeCompare(valueB);
-                }
-                catch (e) {
+                } catch (e) {
                     // if something wrong with localeCompare, eg not supported
                     // by browser, then just continue with the quick one
                     return doQuickCompare(valueA, valueB);
@@ -738,18 +730,17 @@ var Utils = /** @class */ (function () {
         }
         if (valueA < valueB) {
             return -1;
-        }
-        else if (valueA > valueB) {
+        } else if (valueA > valueB) {
             return 1;
-        }
-        else {
+        } else {
             return 0;
         }
+
         function doQuickCompare(a, b) {
             return (a > b ? 1 : (a < b ? -1 : 0));
         }
     };
-    Utils.compareArrays = function (array1, array2) {
+    Utils.compareArrays = function(array1, array2) {
         if (this.missing(array1) && this.missing(array2)) {
             return true;
         }
@@ -767,7 +758,7 @@ var Utils = /** @class */ (function () {
         }
         return true;
     };
-    Utils.ensureDomOrder = function (eContainer, eChild, eChildBefore) {
+    Utils.ensureDomOrder = function(eContainer, eChild, eChildBefore) {
         // if already in right order, do nothing
         if (eChildBefore && eChildBefore.nextSibling === eChild) {
             return;
@@ -776,13 +767,11 @@ var Utils = /** @class */ (function () {
             if (eChildBefore.nextSibling) {
                 // insert between the eRowBefore and the row after it
                 eContainer.insertBefore(eChild, eChildBefore.nextSibling);
-            }
-            else {
+            } else {
                 // if nextSibling is missing, means other row is at end, so just append new row at the end
                 eContainer.appendChild(eChild);
             }
-        }
-        else {
+        } else {
             // otherwise put at start
             if (eContainer.firstChild) {
                 // insert it at the first location
@@ -790,41 +779,36 @@ var Utils = /** @class */ (function () {
             }
         }
     };
-    Utils.insertWithDomOrder = function (eContainer, eChild, eChildBefore) {
+    Utils.insertWithDomOrder = function(eContainer, eChild, eChildBefore) {
         if (eChildBefore) {
             if (eChildBefore.nextSibling) {
                 // insert between the eRowBefore and the row after it
                 eContainer.insertBefore(eChild, eChildBefore.nextSibling);
-            }
-            else {
+            } else {
                 // if nextSibling is missing, means other row is at end, so just append new row at the end
                 eContainer.appendChild(eChild);
             }
-        }
-        else {
+        } else {
             if (eContainer.firstChild) {
                 // insert it at the first location
                 eContainer.insertBefore(eChild, eContainer.firstChild);
-            }
-            else {
+            } else {
                 // otherwise eContainer is empty, so just append it
                 eContainer.appendChild(eChild);
             }
         }
     };
-    Utils.insertTemplateWithDomOrder = function (eContainer, htmlTemplate, eChildBefore) {
+    Utils.insertTemplateWithDomOrder = function(eContainer, htmlTemplate, eChildBefore) {
         var res;
         if (eChildBefore) {
             // if previous element exists, just slot in after the previous element
             eChildBefore.insertAdjacentHTML('afterend', htmlTemplate);
             res = eChildBefore.nextSibling;
-        }
-        else {
+        } else {
             if (eContainer.firstChild) {
                 // insert it at the first location
                 eContainer.insertAdjacentHTML('afterbegin', htmlTemplate);
-            }
-            else {
+            } else {
                 // otherwise eContainer is empty, so just append it
                 eContainer.innerHTML = htmlTemplate;
             }
@@ -832,7 +816,7 @@ var Utils = /** @class */ (function () {
         }
         return res;
     };
-    Utils.every = function (items, callback) {
+    Utils.every = function(items, callback) {
         if (!items || items.length === 0) {
             return true;
         }
@@ -843,23 +827,21 @@ var Utils = /** @class */ (function () {
         }
         return true;
     };
-    Utils.toStringOrNull = function (value) {
+    Utils.toStringOrNull = function(value) {
         if (this.exists(value) && value.toString) {
             return value.toString();
-        }
-        else {
+        } else {
             return null;
         }
     };
-    Utils.formatSize = function (size) {
+    Utils.formatSize = function(size) {
         if (typeof size === "number") {
             return size + "px";
-        }
-        else {
+        } else {
             return size;
         }
     };
-    Utils.formatNumberTwoDecimalPlacesAndCommas = function (value) {
+    Utils.formatNumberTwoDecimalPlacesAndCommas = function(value) {
         if (typeof value !== 'number') {
             return '';
         }
@@ -868,18 +850,17 @@ var Utils = /** @class */ (function () {
     };
     // the native method number.toLocaleString(undefined, {minimumFractionDigits: 0}) puts in decimal places in IE,
     // so we use this method instead
-    Utils.formatNumberCommas = function (value) {
+    Utils.formatNumberCommas = function(value) {
         if (typeof value !== 'number') {
             return '';
         }
         // took this from: http://blog.tompawlak.org/number-currency-formatting-javascript
         return value.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
     };
-    Utils.prependDC = function (parent, documentFragment) {
+    Utils.prependDC = function(parent, documentFragment) {
         if (this.exists(parent.firstChild)) {
             parent.insertBefore(documentFragment, parent.firstChild);
-        }
-        else {
+        } else {
             parent.appendChild(documentFragment);
         }
     };
@@ -887,18 +868,17 @@ var Utils = /** @class */ (function () {
      * If icon provided, use this (either a string, or a function callback).
      * if not, then use the default icon from the theme
      */
-    Utils.createIcon = function (iconName, gridOptionsWrapper, column) {
+    Utils.createIcon = function(iconName, gridOptionsWrapper, column) {
         var iconContents = this.createIconNoSpan(iconName, gridOptionsWrapper, column);
         if (iconContents.className.indexOf('ag-icon') > -1) {
             return iconContents;
-        }
-        else {
+        } else {
             var eResult = document.createElement('span');
             eResult.appendChild(iconContents);
             return eResult;
         }
     };
-    Utils.createIconNoSpan = function (iconName, gridOptionsWrapper, column) {
+    Utils.createIconNoSpan = function(iconName, gridOptionsWrapper, column) {
         var userProvidedIcon = null;
         // check col for icon first
         var icons = (column && column.getColDef().icons) ? column.getColDef().icons : null;
@@ -914,24 +894,19 @@ var Utils = /** @class */ (function () {
             var rendererResult = void 0;
             if (typeof userProvidedIcon === 'function') {
                 rendererResult = userProvidedIcon();
-            }
-            else if (typeof userProvidedIcon === 'string') {
+            } else if (typeof userProvidedIcon === 'string') {
                 rendererResult = userProvidedIcon;
-            }
-            else {
+            } else {
                 throw new Error('icon from grid options needs to be a string or a function');
             }
             if (typeof rendererResult === 'string') {
                 return this.loadTemplate(rendererResult);
-            }
-            else if (this.isNodeOrElement(rendererResult)) {
+            } else if (this.isNodeOrElement(rendererResult)) {
                 return rendererResult;
-            }
-            else {
+            } else {
                 throw new Error('iconRenderer should return back a string or a dom object');
             }
-        }
-        else {
+        } else {
             var span = document.createElement('span');
             var cssClass = this.iconNameClassMap[iconName];
             if (!cssClass) {
@@ -942,25 +917,25 @@ var Utils = /** @class */ (function () {
             return span;
         }
     };
-    Utils.addStylesToElement = function (eElement, styles) {
+    Utils.addStylesToElement = function(eElement, styles) {
         var _this = this;
         if (!styles) {
             return;
         }
-        Object.keys(styles).forEach(function (key) {
+        Object.keys(styles).forEach(function(key) {
             var keyCamelCase = _this.hyphenToCamelCase(key);
             if (keyCamelCase) {
                 eElement.style[keyCamelCase] = styles[key];
             }
         });
     };
-    Utils.isHorizontalScrollShowing = function (element) {
+    Utils.isHorizontalScrollShowing = function(element) {
         return element.clientWidth < element.scrollWidth;
     };
-    Utils.isVerticalScrollShowing = function (element) {
+    Utils.isVerticalScrollShowing = function(element) {
         return element.clientHeight < element.scrollHeight;
     };
-    Utils.getMaxDivHeight = function () {
+    Utils.getMaxDivHeight = function() {
         if (!document.body) {
             return -1;
         }
@@ -974,15 +949,14 @@ var Utils = /** @class */ (function () {
             div.style.height = test + 'px';
             if (test > testUpTo || div.clientHeight !== test) {
                 break;
-            }
-            else {
+            } else {
                 res = test;
             }
         }
         document.body.removeChild(div);
         return res;
     };
-    Utils.getScrollbarWidth = function () {
+    Utils.getScrollbarWidth = function() {
         var outer = document.createElement("div");
         outer.style.visibility = "hidden";
         outer.style.width = "100px";
@@ -1002,14 +976,16 @@ var Utils = /** @class */ (function () {
         }
         return widthNoScroll - widthWithScroll;
     };
-    Utils.hasOverflowScrolling = function () {
+    Utils.hasOverflowScrolling = function() {
         var prefixes = ['webkit', 'moz', 'o', 'ms'];
         var div = document.createElement('div');
         var body = document.getElementsByTagName('body')[0];
         var found = false;
         var p;
         body.appendChild(div);
-        div.setAttribute('style', prefixes.map(function (prefix) { return "-" + prefix + "-overflow-scrolling: touch"; }).concat('overflow-scrolling: touch').join(';'));
+        div.setAttribute('style', prefixes.map(function(prefix) {
+            return "-" + prefix + "-overflow-scrolling: touch";
+        }).concat('overflow-scrolling: touch').join(';'));
         var computedStyle = window.getComputedStyle(div);
         if (computedStyle.overflowScrolling === 'touch') {
             found = true;
@@ -1028,52 +1004,52 @@ var Utils = /** @class */ (function () {
         }
         return found;
     };
-    Utils.isKeyPressed = function (event, keyToCheck) {
+    Utils.isKeyPressed = function(event, keyToCheck) {
         var pressedKey = event.which || event.keyCode;
         return pressedKey === keyToCheck;
     };
-    Utils.setVisible = function (element, visible) {
+    Utils.setVisible = function(element, visible) {
         this.addOrRemoveCssClass(element, 'ag-hidden', !visible);
     };
-    Utils.setHidden = function (element, hidden) {
+    Utils.setHidden = function(element, hidden) {
         this.addOrRemoveCssClass(element, 'ag-invisible', hidden);
     };
-    Utils.setFixedWidth = function (element, width) {
+    Utils.setFixedWidth = function(element, width) {
         width = this.formatSize(width);
         element.style.width = width;
         element.style.maxWidth = width;
         element.style.minWidth = width;
     };
-    Utils.setFixedHeight = function (element, height) {
+    Utils.setFixedHeight = function(element, height) {
         height = this.formatSize(height);
         element.style.height = height;
         element.style.maxHeight = height;
         element.style.minHeight = height;
     };
-    Utils.isBrowserIE = function () {
+    Utils.isBrowserIE = function() {
         if (this.isIE === undefined) {
             this.isIE = /*@cc_on!@*/ false || !!document.documentMode; // At least IE6
         }
         return this.isIE;
     };
-    Utils.isBrowserEdge = function () {
+    Utils.isBrowserEdge = function() {
         if (this.isEdge === undefined) {
             this.isEdge = !this.isBrowserIE() && !!window.StyleMedia;
         }
         return this.isEdge;
     };
-    Utils.isBrowserSafari = function () {
+    Utils.isBrowserSafari = function() {
         if (this.isSafari === undefined) {
             var anyWindow = window;
             // taken from https://github.com/ag-grid/ag-grid/issues/550
-            this.isSafari = Object.prototype.toString.call(anyWindow.HTMLElement).indexOf('Constructor') > 0
-                || (function (p) {
+            this.isSafari = Object.prototype.toString.call(anyWindow.HTMLElement).indexOf('Constructor') > 0 ||
+                (function(p) {
                     return p ? p.toString() === "[object SafariRemoteNotification]" : false;
                 })(!anyWindow.safari || anyWindow.safari.pushNotification);
         }
         return this.isSafari;
     };
-    Utils.isBrowserChrome = function () {
+    Utils.isBrowserChrome = function() {
         if (this.isChrome === undefined) {
             var win = window;
             this.isChrome = (!!win.chrome && (!!win.chrome.webstore || !!win.chrome.runtime)) ||
@@ -1081,14 +1057,14 @@ var Utils = /** @class */ (function () {
         }
         return this.isChrome;
     };
-    Utils.isBrowserFirefox = function () {
+    Utils.isBrowserFirefox = function() {
         if (this.isFirefox === undefined) {
             var win = window;
             this.isFirefox = typeof win.InstallTrigger !== 'undefined';
         }
         return this.isFirefox;
     };
-    Utils.isUserAgentIPad = function () {
+    Utils.isUserAgentIPad = function() {
         if (this.isIPad === undefined) {
             // taken from https://davidwalsh.name/detect-ipad
             this.isIPad = navigator.userAgent.match(/iPad|iPhone/i) != null;
@@ -1097,11 +1073,11 @@ var Utils = /** @class */ (function () {
     };
     // srcElement is only available in IE. In all other browsers it is target
     // http://stackoverflow.com/questions/5301643/how-can-i-make-event-srcelement-work-in-firefox-and-what-does-it-mean
-    Utils.getTarget = function (event) {
+    Utils.getTarget = function(event) {
         var eventNoType = event;
         return eventNoType.target || eventNoType.srcElement;
     };
-    Utils.isElementChildOfClass = function (element, cls, maxNest) {
+    Utils.isElementChildOfClass = function(element, cls, maxNest) {
         var counter = 0;
         while (element) {
             if (this.containsClass(element, cls)) {
@@ -1114,14 +1090,14 @@ var Utils = /** @class */ (function () {
         }
         return false;
     };
-    Utils.isElementInEventPath = function (element, event) {
+    Utils.isElementInEventPath = function(element, event) {
         if (!event || !element) {
             return false;
         }
         var path = exports._.getEventPath(event);
         return path.indexOf(element) >= 0;
     };
-    Utils.createEventPath = function (event) {
+    Utils.createEventPath = function(event) {
         var res = [];
         var pointer = exports._.getTarget(event);
         while (pointer) {
@@ -1134,43 +1110,39 @@ var Utils = /** @class */ (function () {
     // it in. this is needed as it's to late to work out the path when the item is
     // removed from the dom. used by MouseEventService, where it works out if a click
     // was from the current grid, or a detail grid (master / detail).
-    Utils.addAgGridEventPath = function (event) {
+    Utils.addAgGridEventPath = function(event) {
         event.__agGridEventPath = this.getEventPath(event);
     };
-    Utils.getEventPath = function (event) {
+    Utils.getEventPath = function(event) {
         // https://stackoverflow.com/questions/39245488/event-path-undefined-with-firefox-and-vue-js
         // https://developer.mozilla.org/en-US/docs/Web/API/Event
         var eventNoType = event;
         if (eventNoType.deepPath) {
             // IE supports deep path
             return eventNoType.deepPath();
-        }
-        else if (eventNoType.path) {
+        } else if (eventNoType.path) {
             // Chrome supports path
             return eventNoType.path;
-        }
-        else if (eventNoType.composedPath) {
+        } else if (eventNoType.composedPath) {
             // Firefox supports composePath
             return eventNoType.composedPath();
-        }
-        else if (eventNoType.__agGridEventPath) {
+        } else if (eventNoType.__agGridEventPath) {
             // Firefox supports composePath
             return eventNoType.__agGridEventPath;
-        }
-        else {
+        } else {
             // and finally, if none of the above worked,
             // we create the path ourselves
             return this.createEventPath(event);
         }
     };
-    Utils.forEachSnapshotFirst = function (list, callback) {
+    Utils.forEachSnapshotFirst = function(list, callback) {
         if (list) {
             var arrayCopy = list.slice(0);
             arrayCopy.forEach(callback);
         }
     };
     // taken from: http://stackoverflow.com/questions/1038727/how-to-get-browser-width-using-javascript-code
-    Utils.getBodyWidth = function () {
+    Utils.getBodyWidth = function() {
         if (document.body) {
             return document.body.clientWidth;
         }
@@ -1183,7 +1155,7 @@ var Utils = /** @class */ (function () {
         return -1;
     };
     // taken from: http://stackoverflow.com/questions/1038727/how-to-get-browser-width-using-javascript-code
-    Utils.getBodyHeight = function () {
+    Utils.getBodyHeight = function() {
         if (document.body) {
             return document.body.clientHeight;
         }
@@ -1195,22 +1167,22 @@ var Utils = /** @class */ (function () {
         }
         return -1;
     };
-    Utils.setCheckboxState = function (eCheckbox, state) {
+    Utils.setCheckboxState = function(eCheckbox, state) {
         if (typeof state === 'boolean') {
             eCheckbox.checked = state;
             eCheckbox.indeterminate = false;
-        }
-        else {
+        } else {
             // isNodeSelected returns back undefined if it's a group and the children
             // are a mix of selected and unselected
             eCheckbox.indeterminate = true;
         }
     };
-    Utils.traverseNodesWithKey = function (nodes, callback) {
+    Utils.traverseNodesWithKey = function(nodes, callback) {
         var keyParts = [];
         recursiveSearchNodes(nodes);
+
         function recursiveSearchNodes(currentNodes) {
-            currentNodes.forEach(function (node) {
+            currentNodes.forEach(function(node) {
                 // also checking for children for tree data
                 if (node.group || node.hasChildren()) {
                     keyParts.push(node.key);
@@ -1223,27 +1195,31 @@ var Utils = /** @class */ (function () {
         }
     };
     // from https://gist.github.com/youssman/745578062609e8acac9f
-    Utils.camelCaseToHyphen = function (str) {
+    Utils.camelCaseToHyphen = function(str) {
         if (str === null || str === undefined) {
             return null;
         }
-        return str.replace(/([A-Z])/g, function (g) { return '-' + g[0].toLowerCase(); });
+        return str.replace(/([A-Z])/g, function(g) {
+            return '-' + g[0].toLowerCase();
+        });
     };
     // from https://stackoverflow.com/questions/6660977/convert-hyphens-to-camel-case-camelcase
-    Utils.hyphenToCamelCase = function (str) {
+    Utils.hyphenToCamelCase = function(str) {
         if (str === null || str === undefined) {
             return null;
         }
-        return str.replace(/-([a-z])/g, function (g) { return g[1].toUpperCase(); });
+        return str.replace(/-([a-z])/g, function(g) {
+            return g[1].toUpperCase();
+        });
     };
     // pas in an object eg: {color: 'black', top: '25px'} and it returns "color: black; top: 25px;" for html
-    Utils.cssStyleObjectToMarkup = function (stylesToUse) {
+    Utils.cssStyleObjectToMarkup = function(stylesToUse) {
         var _this = this;
         if (!stylesToUse) {
             return '';
         }
         var resParts = [];
-        this.iterateObject(stylesToUse, function (styleKey, styleValue) {
+        this.iterateObject(stylesToUse, function(styleKey, styleValue) {
             var styleKeyDashed = _this.camelCaseToHyphen(styleKey);
             resParts.push(styleKeyDashed + ": " + styleValue + ";");
         });
@@ -1252,17 +1228,19 @@ var Utils = /** @class */ (function () {
     /**
      * From http://stackoverflow.com/questions/9716468/is-there-any-function-like-isnumeric-in-javascript-to-validate-numbers
      */
-    Utils.isNumeric = function (value) {
+    Utils.isNumeric = function(value) {
         if (value === '') {
             return false;
         }
         return !isNaN(parseFloat(value)) && isFinite(value);
     };
-    Utils.escape = function (toEscape) {
+    Utils.escape = function(toEscape) {
         if (toEscape === null || toEscape === undefined || !toEscape.replace) {
             return toEscape;
         }
-        return toEscape.replace(reUnescapedHtml, function (chr) { return HTML_ESCAPES[chr]; });
+        return toEscape.replace(reUnescapedHtml, function(chr) {
+            return HTML_ESCAPES[chr];
+        });
     };
     // Taken from here: https://github.com/facebook/fixed-data-table/blob/master/src/vendor_upstream/dom/normalizeWheel.js
     /**
@@ -1365,7 +1343,7 @@ var Utils = /** @class */ (function () {
      *         Firefox v4/Win7  |     undefined    |       3
      *
      */
-    Utils.normalizeWheel = function (event) {
+    Utils.normalizeWheel = function(event) {
         var PIXEL_STEP = 10;
         var LINE_HEIGHT = 40;
         var PAGE_HEIGHT = 800;
@@ -1405,8 +1383,7 @@ var Utils = /** @class */ (function () {
             if (event.deltaMode == 1) { // delta in LINE units
                 pX *= LINE_HEIGHT;
                 pY *= LINE_HEIGHT;
-            }
-            else { // delta in PAGE units
+            } else { // delta in PAGE units
                 pX *= PAGE_HEIGHT;
                 pY *= PAGE_HEIGHT;
             }
@@ -1428,14 +1405,16 @@ var Utils = /** @class */ (function () {
     /**
      * https://stackoverflow.com/questions/24004791/can-someone-explain-the-debounce-function-in-javascript
      */
-    Utils.debounce = function (func, wait, immediate) {
-        if (immediate === void 0) { immediate = false; }
+    Utils.debounce = function(func, wait, immediate) {
+        if (immediate === void 0) {
+            immediate = false;
+        }
         // 'private' variable for instance
         // The returned function will be able to reference this due to closure.
         // Each call to the returned function will share this common timer.
         var timeout;
         // Calling debounce returns a new anonymous function
-        return function () {
+        return function() {
             var args = [];
             for (var _i = 0; _i < arguments.length; _i++) {
                 args[_i] = arguments[_i];
@@ -1451,7 +1430,7 @@ var Utils = /** @class */ (function () {
             //   Each time the returned function is called, the timer starts over.
             window.clearTimeout(timeout);
             // Set the new timeout
-            timeout = window.setTimeout(function () {
+            timeout = window.setTimeout(function() {
                 // Inside the timeout function, clear the timeout variable
                 // which will let the next execution run when in 'immediate' mode
                 timeout = null;
@@ -1475,26 +1454,28 @@ var Utils = /** @class */ (function () {
     // checkbox clicks (so the rows didn't pick them up as row selection selection clicks).
     // to get around this, we have a pattern to stop propagation for the purposes of ag-Grid,
     // but we still let the event pass back to teh body.
-    Utils.stopPropagationForAgGrid = function (event) {
+    Utils.stopPropagationForAgGrid = function(event) {
         event[AG_GRID_STOP_PROPAGATION] = true;
     };
-    Utils.isStopPropagationForAgGrid = function (event) {
+    Utils.isStopPropagationForAgGrid = function(event) {
         return event[AG_GRID_STOP_PROPAGATION] === true;
     };
-    Utils.executeInAWhile = function (funcs) {
+    Utils.executeInAWhile = function(funcs) {
         this.executeAfter(funcs, 400);
     };
-    Utils.executeNextVMTurn = function (funcs) {
+    Utils.executeNextVMTurn = function(funcs) {
         this.executeAfter(funcs, 0);
     };
-    Utils.executeAfter = function (funcs, millis) {
+    Utils.executeAfter = function(funcs, millis) {
         if (funcs.length > 0) {
-            window.setTimeout(function () {
-                funcs.forEach(function (func) { return func(); });
+            window.setTimeout(function() {
+                funcs.forEach(function(func) {
+                    return func();
+                });
             }, millis);
         }
     };
-    Utils.referenceCompare = function (left, right) {
+    Utils.referenceCompare = function(left, right) {
         if (left == null && right == null) {
             return true;
         }
@@ -1506,7 +1487,7 @@ var Utils = /** @class */ (function () {
         }
         return left === right;
     };
-    Utils.get = function (source, expression, defaultValue) {
+    Utils.get = function(source, expression, defaultValue) {
         if (source == null) {
             return defaultValue;
         }
@@ -1516,20 +1497,20 @@ var Utils = /** @class */ (function () {
             var nextValue = source[thisKey];
             if (nextValue != null) {
                 return Utils.get(nextValue, fields.slice(1, fields.length).join('.'), defaultValue);
-            }
-            else {
+            } else {
                 return defaultValue;
             }
-        }
-        else {
+        } else {
             var nextValue = source[expression];
             return nextValue != null ? nextValue : defaultValue;
         }
     };
-    Utils.addSafePassiveEventListener = function (eElement, event, listener) {
-        eElement.addEventListener(event, listener, (Utils.passiveEvents.indexOf(event) > -1 ? { passive: true } : undefined));
+    Utils.addSafePassiveEventListener = function(eElement, event, listener) {
+        eElement.addEventListener(event, listener, (Utils.passiveEvents.indexOf(event) > -1 ? {
+            passive: true
+        } : undefined));
     };
-    Utils.camelCaseToHumanText = function (camelCase) {
+    Utils.camelCaseToHumanText = function(camelCase) {
         if (!camelCase || camelCase == null) {
             return null;
         }
@@ -1537,13 +1518,15 @@ var Utils = /** @class */ (function () {
         // from: https://stackoverflow.com/questions/15369566/putting-space-in-camel-case-string-using-regular-expression
         var rex = /([A-Z])([A-Z])([a-z])|([a-z])([A-Z])/g;
         var words = camelCase.replace(rex, '$1$4 $2$3$5').replace('.', ' ').split(' ');
-        return words.map(function (word) { return word.substring(0, 1).toUpperCase() + ((word.length > 1) ? word.substring(1, word.length) : ''); }).join(' ');
+        return words.map(function(word) {
+            return word.substring(0, 1).toUpperCase() + ((word.length > 1) ? word.substring(1, word.length) : '');
+        }).join(' ');
     };
     // displays a message to the browser. this is useful in iPad, where you can't easily see the console.
     // so the javascript code can use this to give feedback. this is NOT intended to be called in production.
     // it is intended the ag-Grid developer calls this to troubleshoot, but then takes out the calls before
     // checking in.
-    Utils.message = function (msg) {
+    Utils.message = function(msg) {
         var eMessage = document.createElement('div');
         eMessage.innerHTML = msg;
         var eBox = document.querySelector('#__ag__message');
@@ -1561,11 +1544,11 @@ var Utils = /** @class */ (function () {
     // when in ClientSideNodeManager we always have indexes (as this sorts the items the
     // user provided) but when in GroupStage, the nodes can contain filler nodes that
     // don't have order id's
-    Utils.sortRowNodesByOrder = function (rowNodes, rowNodeOrder) {
+    Utils.sortRowNodesByOrder = function(rowNodes, rowNodeOrder) {
         if (!rowNodes) {
             return;
         }
-        var comparator = function (nodeA, nodeB) {
+        var comparator = function(nodeA, nodeB) {
             var positionA = rowNodeOrder[nodeA.id];
             var positionB = rowNodeOrder[nodeB.id];
             var aHasIndex = positionA !== undefined;
@@ -1576,8 +1559,7 @@ var Utils = /** @class */ (function () {
                 // when comparing two nodes the user has provided, they always
                 // have indexes
                 return positionA - positionB;
-            }
-            else if (bothNodesAreFillerNodes) {
+            } else if (bothNodesAreFillerNodes) {
                 // when comparing two filler nodes, we have no index to compare them
                 // against, however we want this sorting to be deterministic, so that
                 // the rows don't jump around as the user does delta updates. so we
@@ -1588,8 +1570,7 @@ var Utils = /** @class */ (function () {
                 // as string ordering of numbers is wrong, so using id based on creation order
                 // as least gives better looking order.
                 return nodeA.__objectId - nodeB.__objectId;
-            }
-            else if (aHasIndex) {
+            } else if (aHasIndex) {
                 return 1;
             }
             return -1;
@@ -1614,33 +1595,35 @@ var Utils = /** @class */ (function () {
         // const c = new Date().getTime();
         // console.log(`${this.count}: ${rowNodes.length} items, ${b-a}ms ${atLeastOneOutOfOrder} ${c-b}ms`);
     };
-    Utils.fuzzyCheckStrings = function (inputValues, validValues, allSuggestions) {
+    Utils.fuzzyCheckStrings = function(inputValues, validValues, allSuggestions) {
         var _this = this;
         var fuzzyMatches = {};
-        var invalidInputs = inputValues.filter(function (inputValue) {
-            return !validValues.some(function (validValue) { return validValue === inputValue; });
+        var invalidInputs = inputValues.filter(function(inputValue) {
+            return !validValues.some(function(validValue) {
+                return validValue === inputValue;
+            });
         });
         if (invalidInputs.length > 0) {
-            invalidInputs.forEach(function (invalidInput) {
+            invalidInputs.forEach(function(invalidInput) {
                 return fuzzyMatches[invalidInput] = _this.fuzzySuggestions(invalidInput, validValues, allSuggestions);
             });
         }
         return fuzzyMatches;
     };
-    Utils.fuzzySuggestions = function (inputValue, validValues, allSuggestions) {
+    Utils.fuzzySuggestions = function(inputValue, validValues, allSuggestions) {
         var thisSuggestions = allSuggestions.slice(0);
-        thisSuggestions.sort(function (suggestedValueLeft, suggestedValueRight) {
+        thisSuggestions.sort(function(suggestedValueLeft, suggestedValueRight) {
             var leftDifference = exports._.string_similarity(suggestedValueLeft.toLowerCase(), inputValue.toLowerCase());
             var rightDifference = exports._.string_similarity(suggestedValueRight.toLowerCase(), inputValue.toLowerCase());
             return leftDifference > rightDifference ? -1 :
                 leftDifference === rightDifference ? 0 :
-                    1;
+                1;
         });
         return thisSuggestions;
     };
     //Algorithm to do fuzzy search
     //https://stackoverflow.com/questions/23305000/javascript-fuzzy-search-that-makes-sense
-    Utils.get_bigrams = function (from) {
+    Utils.get_bigrams = function(from) {
         var s = from.toLowerCase();
         var v = new Array(s.length - 1);
         var i;
@@ -1651,7 +1634,7 @@ var Utils = /** @class */ (function () {
         }
         return v;
     };
-    Utils.isNumpadDelWithNumlockOnForEdgeOrIe = function (event) {
+    Utils.isNumpadDelWithNumlockOnForEdgeOrIe = function(event) {
         if (Utils.isBrowserEdge() || Utils.isBrowserIE()) {
             return event.key === Utils.NUMPAD_DEL_NUMLOCK_ON_KEY &&
                 event.charCode === Utils.NUMPAD_DEL_NUMLOCK_ON_CHARCODE;
@@ -1662,14 +1645,18 @@ var Utils = /** @class */ (function () {
     Utils.NUMPAD_DEL_NUMLOCK_ON_KEY = 'Del';
     Utils.NUMPAD_DEL_NUMLOCK_ON_CHARCODE = 46;
     Utils.doOnceFlags = {};
-    Utils.compose = function () {
+    Utils.compose = function() {
         var fns = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             fns[_i] = arguments[_i];
         }
-        return function (arg) { return fns.reduce(function (composed, f) { return f(composed); }, arg); };
+        return function(arg) {
+            return fns.reduce(function(composed, f) {
+                return f(composed);
+            }, arg);
+        };
     };
-    Utils.decToHex = function (number, bytes) {
+    Utils.decToHex = function(number, bytes) {
         var hex = '';
         for (var i = 0; i < bytes; i++) {
             hex += String.fromCharCode(number & 0xff);
@@ -1677,25 +1664,10 @@ var Utils = /** @class */ (function () {
         }
         return hex;
     };
-    Utils.utf8_encode = function (s) {
+    Utils.utf8_encode = function(s) {
         var utftext = '';
         s = s.replace(/\r\n/g, "\n");
-        for (var n = 0, len = s.length; n < len; n++) {
-            var c = s.charCodeAt(n);
-            if (c < 128) {
-                utftext += String.fromCharCode(c);
-            }
-            else if ((c > 127) && (c < 2048)) {
-                utftext += String.fromCharCode((c >> 6) | 192);
-                utftext += String.fromCharCode((c & 63) | 128);
-            }
-            else {
-                utftext += String.fromCharCode((c >> 12) | 224);
-                utftext += String.fromCharCode(((c >> 6) & 63) | 128);
-                utftext += String.fromCharCode((c & 63) | 128);
-            }
-        }
-        return utftext;
+        return unescape(encodeURIComponent(s));
     };
     // static prepend(parent: HTMLElement, child: HTMLElement): void {
     //     if (this.exists(parent.firstChild)) {
@@ -1747,7 +1719,7 @@ var Utils = /** @class */ (function () {
         sortUnSort: 'none'
     };
     Utils.passiveEvents = ['touchstart', 'touchend', 'touchmove', 'touchcancel'];
-    Utils.string_similarity = function (str1, str2) {
+    Utils.string_similarity = function(str1, str2) {
         if (str1.length > 0 && str2.length > 0) {
             var pairs1 = Utils.get_bigrams(str1);
             var pairs2 = Utils.get_bigrams(str2);
@@ -1775,22 +1747,26 @@ var Utils = /** @class */ (function () {
     return Utils;
 }());
 exports.Utils = Utils;
-var NumberSequence = /** @class */ (function () {
+var NumberSequence = /** @class */ (function() {
     function NumberSequence(initValue, step) {
-        if (initValue === void 0) { initValue = 0; }
-        if (step === void 0) { step = 1; }
+        if (initValue === void 0) {
+            initValue = 0;
+        }
+        if (step === void 0) {
+            step = 1;
+        }
         this.nextValue = initValue;
         this.step = step;
     }
-    NumberSequence.prototype.next = function () {
+    NumberSequence.prototype.next = function() {
         var valToReturn = this.nextValue;
         this.nextValue += this.step;
         return valToReturn;
     };
-    NumberSequence.prototype.peek = function () {
+    NumberSequence.prototype.peek = function() {
         return this.nextValue;
     };
-    NumberSequence.prototype.skip = function (count) {
+    NumberSequence.prototype.skip = function(count) {
         this.nextValue += count;
     };
     return NumberSequence;
@@ -1798,23 +1774,23 @@ var NumberSequence = /** @class */ (function () {
 exports.NumberSequence = NumberSequence;
 exports._ = Utils;
 var PromiseStatus;
-(function (PromiseStatus) {
+(function(PromiseStatus) {
     PromiseStatus[PromiseStatus["IN_PROGRESS"] = 0] = "IN_PROGRESS";
     PromiseStatus[PromiseStatus["RESOLVED"] = 1] = "RESOLVED";
 })(PromiseStatus = exports.PromiseStatus || (exports.PromiseStatus = {}));
-var Promise = /** @class */ (function () {
+var Promise = /** @class */ (function() {
     function Promise(callback) {
         this.status = PromiseStatus.IN_PROGRESS;
         this.resolution = null;
         this.listOfWaiters = [];
         callback(this.onDone.bind(this), this.onReject.bind(this));
     }
-    Promise.all = function (toCombine) {
-        return new Promise(function (resolve) {
+    Promise.all = function(toCombine) {
+        return new Promise(function(resolve) {
             var combinedValues = [];
             var remainingToResolve = toCombine.length;
-            toCombine.forEach(function (source, index) {
-                source.then(function (sourceResolved) {
+            toCombine.forEach(function(source, index) {
+                source.then(function(sourceResolved) {
                     remainingToResolve--;
                     combinedValues[index] = sourceResolved;
                     if (remainingToResolve == 0) {
@@ -1825,59 +1801,61 @@ var Promise = /** @class */ (function () {
             });
         });
     };
-    Promise.resolve = function (value) {
-        return new Promise(function (resolve) { return resolve(value); });
+    Promise.resolve = function(value) {
+        return new Promise(function(resolve) {
+            return resolve(value);
+        });
     };
-    Promise.external = function () {
+    Promise.external = function() {
         var capture;
-        var promise = new Promise(function (resolve) {
+        var promise = new Promise(function(resolve) {
             capture = resolve;
         });
         return {
             promise: promise,
-            resolve: function (value) {
+            resolve: function(value) {
                 capture(value);
             }
         };
     };
-    Promise.prototype.then = function (func) {
+    Promise.prototype.then = function(func) {
         if (this.status === PromiseStatus.IN_PROGRESS) {
             this.listOfWaiters.push(func);
-        }
-        else {
+        } else {
             func(this.resolution);
         }
     };
-    Promise.prototype.firstOneOnly = function (func) {
+    Promise.prototype.firstOneOnly = function(func) {
         if (this.status === PromiseStatus.IN_PROGRESS) {
             if (this.listOfWaiters.length === 0) {
                 this.listOfWaiters.push(func);
             }
-        }
-        else {
+        } else {
             func(this.resolution);
         }
     };
-    Promise.prototype.map = function (adapter) {
+    Promise.prototype.map = function(adapter) {
         var _this = this;
-        return new Promise(function (resolve) {
-            _this.then(function (unmapped) {
+        return new Promise(function(resolve) {
+            _this.then(function(unmapped) {
                 resolve(adapter(unmapped));
             });
         });
     };
-    Promise.prototype.resolveNow = function (ifNotResolvedValue, ifResolved) {
+    Promise.prototype.resolveNow = function(ifNotResolvedValue, ifResolved) {
         if (this.status == PromiseStatus.IN_PROGRESS) {
             return ifNotResolvedValue;
         }
         return ifResolved(this.resolution);
     };
-    Promise.prototype.onDone = function (value) {
+    Promise.prototype.onDone = function(value) {
         this.status = PromiseStatus.RESOLVED;
         this.resolution = value;
-        this.listOfWaiters.forEach(function (waiter) { return waiter(value); });
+        this.listOfWaiters.forEach(function(waiter) {
+            return waiter(value);
+        });
     };
-    Promise.prototype.onReject = function (params) {
+    Promise.prototype.onReject = function(params) {
         console.warn('TBI');
     };
     return Promise;
