@@ -4369,22 +4369,7 @@ var Utils = /** @class */ (function () {
     Utils.utf8_encode = function (s) {
         var utftext = '';
         s = s.replace(/\r\n/g, "\n");
-        for (var n = 0, len = s.length; n < len; n++) {
-            var c = s.charCodeAt(n);
-            if (c < 128) {
-                utftext += String.fromCharCode(c);
-            }
-            else if ((c > 127) && (c < 2048)) {
-                utftext += String.fromCharCode((c >> 6) | 192);
-                utftext += String.fromCharCode((c & 63) | 128);
-            }
-            else {
-                utftext += String.fromCharCode((c >> 12) | 224);
-                utftext += String.fromCharCode(((c >> 6) & 63) | 128);
-                utftext += String.fromCharCode((c & 63) | 128);
-            }
-        }
-        return utftext;
+        return unescape(encodeURIComponent(s));
     };
     // static prepend(parent: HTMLElement, child: HTMLElement): void {
     //     if (this.exists(parent.firstChild)) {
