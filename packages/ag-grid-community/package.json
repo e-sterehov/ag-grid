@@ -1,6 +1,6 @@
 {
   "name": "icm-ag-grid-community",
-  "version": "20.1.0",
+  "version": "20.1.1",
   "description": "Advanced Data Grid / Data Table supporting Javascript / React / AngularJS / Web Components",
   "main": "./main.js",
   "scripts": {
@@ -13,7 +13,7 @@
   "typings": "./main.d.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ag-grid/ag-grid.git"
+    "url": "git+https://github.com/e-sterehov/ag-grid"
   },
   "keywords": [
     "web-components",
